@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using superecommere.Models.Domain;
+using superecommere.Models.Products;
 using superecommere.Models.Store;
+using System.Reflection;
 using System.Reflection.Metadata;
 
 namespace superecommere.Data
@@ -18,6 +20,12 @@ namespace superecommere.Data
 #pragma warning disable CS0114 // Member hides inherited member; missing override keyword
         public DbSet<TblUser> Users { get; set; }
         public DbSet<TblStore> Stores { get; set; }
+        public DbSet<TblProducts> Products { get; set; }
+        public DbSet<ProductBrand> ProductBrands { get; set; }
+        public DbSet<ProductType> ProductTypes { get; set; }
+
+
+
 
 
 
@@ -40,18 +48,19 @@ namespace superecommere.Data
 
 
             base.OnModelCreating(modelBuilder);
+            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
-            modelBuilder.Entity<TblUser>()
-               .HasMany(e => e.Stores)
-               .WithOne(e => e.User)
-               .HasForeignKey(e => e.UserId)
-                .IsRequired(false);
+            //modelBuilder.Entity<TblUser>()
+            //   .HasMany(e => e.Stores)
+            //   .WithOne(e => e.User)
+            //   .HasForeignKey(e => e.UserId)
+            //    .IsRequired(false);
 
-            modelBuilder.Entity<TblStore>()
-                .HasOne<TblUser>()
-                .WithMany(e => e.Stores)
-                .HasForeignKey(e => e.UserId)
-                .IsRequired();
+            //modelBuilder.Entity<TblStore>()
+            //    .HasOne<TblUser>()
+            //    .WithMany(e => e.Stores)
+            //    .HasForeignKey(e => e.UserId)
+            //    .IsRequired();
 
             //modelBuilder.Entity<TblStore>(entity =>
             //{

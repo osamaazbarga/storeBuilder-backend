@@ -31,6 +31,6 @@ namespace superecommere.Models.Domain
 
         public string Provider { get; set; } = string.Empty;
 
-        public ICollection<TblStore>? Stores { get; set; }
+        //public ICollection<TblStore>? Stores { get; set; }
     }
 }
