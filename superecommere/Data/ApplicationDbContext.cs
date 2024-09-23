@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
+using superecommere.Data.Config;
 using superecommere.Models.Domain;
 using superecommere.Models.Products;
 using superecommere.Models.Store;
@@ -49,6 +50,8 @@ namespace superecommere.Data
 
             base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(ProductConfiguration).Assembly);
+
 
             //modelBuilder.Entity<TblUser>()
             //   .HasMany(e => e.Stores)

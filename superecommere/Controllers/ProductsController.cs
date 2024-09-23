@@ -10,9 +10,9 @@ using superecommere.Models.Products;
 
 namespace superecommere.Controllers
 {
-    //[Route("api/[controller]")]
-    //[ApiController]
-    public class ProductsController : BaseApiController
+    [Route("api/[controller]")]
+    [ApiController]
+    public class ProductsController : ControllerBase
     {
         private readonly ApplicationDbContext _Context;
         private readonly IMapper _mapper;
@@ -24,10 +24,61 @@ namespace superecommere.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet("")]
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<TblProducts>>> GetProducts()
+        {
+           return await _Context.Products.ToListAsync();
+        }
+
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<TblProducts>> GetProduct(int id)
+        {
+            var product=await _Context.Products.FindAsync(id);
+            if (product == null)
+            {
+                return NotFound(new ApiResponse(404));
+            }
+            return product;
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<TblProducts>> CreateProduct(TblProducts product)
+        {
+            _Context.Products.Add(product);
+            await _Context.SaveChangesAsync();
+            return Ok(product); 
+        }
+
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult> UpdateProduct(int id,TblProducts product)
+        {
+            if (product.Id != id || !ProductExists(id)) return BadRequest("Cannot update this product");
+            _Context.Entry(product).State = EntityState.Modified;
+            await _Context.SaveChangesAsync();
+            return NoContent();
+
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<ActionResult> DeleteProduct(int id) {
+            var product = await _Context.Products.FindAsync(id);
+            if (product == null) return NotFound();
+            _Context.Products.Remove(product);
+            await _Context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        private bool ProductExists(int id)
+        {
+            return _Context.Products.Any(p => p.Id == id);
+        }
+
+
+
+        [HttpGet("async")]
         public async Task<ActionResult<IReadOnlyList<ProductDetailsDto>>> GetProductsAsync()
         {
-            var products= await _Context.Products
+            var products = await _Context.Products
                 .Include(p => p.ProductType)
                 .Include(p => p.ProductBrand)
                 .ToListAsync();
@@ -44,23 +95,23 @@ namespace superecommere.Controllers
             //}).ToList();
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("async/{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ApiResponse),StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
 
         public async Task<ActionResult<ProductDetailsDto>> GetProductsByIdAsync(int id)
         {
 
-            var product= await _Context.Products
+            var product = await _Context.Products
                 .Include(p => p.ProductType)
                 .Include(p => p.ProductBrand)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
-            if(product == null)
+            if (product == null)
             {
                 return NotFound(new ApiResponse(404));
             }
-            return _mapper.Map<TblProducts,ProductDetailsDto>(product);
+            return _mapper.Map<TblProducts, ProductDetailsDto>(product);
         }
 
         [HttpGet("brands")]
