@@ -26,6 +26,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 builder.Services.AddApplicationServices(builder.Configuration);
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+
 var app = builder.Build();
 
 
@@ -78,11 +81,12 @@ catch(Exception ex)
 #endregion
 
 
-using var scope2 = app.Services.CreateScope();
-var context = scope2.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
 try
 {
+
+    using var scope2 = app.Services.CreateScope();
+    var context = scope2.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
     await context.Database.MigrateAsync();
     await SuperContextSeed.SeedAsync(context);

@@ -2,10 +2,20 @@
 
 namespace superecommere.Repositories.Interface
 {
-    internal interface IProductRepository
+    public interface IProductRepository
     {
-        Task<TblProducts> GetProductsByIdAsync(int id);
-        Task<IReadOnlyList<TblProducts>> GetProductsAsync();
+        Task<TblProducts> GetProductByIdAsync(int id);
+        Task<IReadOnlyList<TblProducts>> GetProductsAsync(int? brandID,int?typeID,string?sort);
+        Task<IReadOnlyList<ProductBrand>> GetBrandsAsync();
+        Task<IReadOnlyList<ProductType>> GetTypesAsync();
+
+        void AddProduct(TblProducts product);
+        void UpdateProduct(TblProducts product);
+        void DeleteProduct(TblProducts product);
+        bool ProductExists(int id);
+        Task<bool> SaveChangesAsync();
+
+
 
     }
 }
