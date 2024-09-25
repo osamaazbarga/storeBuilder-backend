@@ -34,7 +34,7 @@ namespace superecommere.Controllers
             var product=await repo.GetByIdAsync(id);
             if (product == null)
             {
-                return NotFound(new ApiResponse(404));
+                return NotFound(/*new ApiErrorResponse(404)*/);
             }
             return product;
         }
@@ -104,7 +104,7 @@ namespace superecommere.Controllers
 
         [HttpGet("async/{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
 
         public async Task<ActionResult<ProductDetailsDto>> GetProductsByIdAsync(int id)
         {
@@ -116,7 +116,7 @@ namespace superecommere.Controllers
 
             if (product == null)
             {
-                return NotFound(new ApiResponse(404));
+                return NotFound(/*new ApiErrorResponse(404)*/);
             }
             return mapper.Map<TblProducts, ProductDetailsDto>(product);
         }

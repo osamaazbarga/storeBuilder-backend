@@ -26,17 +26,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 builder.Services.AddApplicationServices(builder.Configuration);
-builder.Services.AddScoped<IProductRepository, ProductRepository>();
-builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-
 var app = builder.Build();
 
 
 
-// Configure the HTTP request pipeline.
-app.UseMiddleware<ExceptionMeiddleware>();
 
-app.UseStatusCodePagesWithReExecute("/errors/{0}");
+
+//app.UseStatusCodePagesWithReExecute("/errors/{0}");
 //if (app.Environment.IsDevelopment())
 //{
     app.UseSwagger();
@@ -59,6 +55,9 @@ app.UseStaticFiles();
 app.MapControllers();
 
 app.MapFallbackToController("Index", "Fallback");
+
+// Configure the HTTP request pipeline.
+app.UseMiddleware<ExceptionMeiddleware>();
 
 app.MapControllers();
 

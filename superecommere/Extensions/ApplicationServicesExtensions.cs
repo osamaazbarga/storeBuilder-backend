@@ -23,7 +23,8 @@ namespace superecommere.Extensions
             services.Configure<JwtConfig>(config.GetSection(key: "JwtConfig"));
 
 
-            
+           
+
             services.AddHttpClient();
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -32,7 +33,8 @@ namespace superecommere.Extensions
 
             services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(config.GetConnectionString("DefaultConnection")));
-            //services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddScoped<JWTService>();
             services.AddScoped<EmailService>();
             services.AddScoped<ContextSeedService>();
@@ -105,7 +107,7 @@ namespace superecommere.Extensions
             services.AddCors(options => options.AddPolicy(name: "SuperEcommereOrigins",
                 policy =>
                 {
-                    policy.WithOrigins("https://localhost:4200").AllowAnyMethod().AllowAnyHeader();
+                    policy.WithOrigins("http://localhost:4200","https://localhost:4200").AllowAnyMethod().AllowAnyHeader();
                 }));
 
             services.Configure<ApiBehaviorOptions>(options =>

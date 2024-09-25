@@ -1,8 +1,8 @@
 ﻿namespace superecommere.Errors
 {
-    public class ApiValidationErrorResponce : ApiResponse
+    public class ApiValidationErrorResponce : ApiErrorResponse
     {
-        public ApiValidationErrorResponce() : base(400)
+        public ApiValidationErrorResponce() : base(400,null,null)
         {
         }
 
