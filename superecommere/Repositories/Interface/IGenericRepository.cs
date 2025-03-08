@@ -1,4 +1,4 @@
-﻿using superecommere.Models.Products;
+﻿using superecommere.Models;
 
 namespace superecommere.Repositories.Interface
 {

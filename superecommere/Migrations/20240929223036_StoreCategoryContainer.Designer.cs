@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using superecommere.Data;
 
@@ -11,9 +12,11 @@ using superecommere.Data;
 namespace superecommere.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240929223036_StoreCategoryContainer")]
+    partial class StoreCategoryContainer
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -179,29 +182,6 @@ namespace superecommere.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("StoreCategories");
-                });
-
-            modelBuilder.Entity("superecommere.Models.Categories.StoreCategoryContainer", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("StoreId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SubCategoryId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StoreId");
-
-                    b.HasIndex("SubCategoryId");
-
-                    b.ToTable("StoreCategoryContainer");
                 });
 
             modelBuilder.Entity("superecommere.Models.Categories.SubStoreCategory", b =>
@@ -514,25 +494,6 @@ namespace superecommere.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("superecommere.Models.Categories.StoreCategoryContainer", b =>
-                {
-                    b.HasOne("superecommere.Models.Store.TblStore", "Store")
-                        .WithMany()
-                        .HasForeignKey("StoreId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("superecommere.Models.Categories.SubStoreCategory", "SubCategory")
-                        .WithMany()
-                        .HasForeignKey("SubCategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Store");
-
-                    b.Navigation("SubCategory");
                 });
 
             modelBuilder.Entity("superecommere.Models.Categories.SubStoreCategory", b =>

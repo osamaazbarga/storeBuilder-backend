@@ -1,4 +1,4 @@
-﻿namespace superecommere.Models.Products
+﻿namespace superecommere.Models
 {
     public class BaseEntity
     {

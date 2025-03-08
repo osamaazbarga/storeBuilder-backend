@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using superecommere.Data.Config;
+using superecommere.Models.Categories;
 using superecommere.Models.Domain;
 using superecommere.Models.Products;
 using superecommere.Models.Store;
@@ -24,6 +25,11 @@ namespace superecommere.Data
         public DbSet<TblProducts> Products { get; set; }
         public DbSet<ProductBrand> ProductBrands { get; set; }
         public DbSet<ProductType> ProductTypes { get; set; }
+        public DbSet<StoreCategories> StoreCategories { get; set; }
+        public DbSet<SubStoreCategory> SubStoreCategories { get; set; }
+        public DbSet<StoreCategoryContainer> StoreCategoryContainer { get; set; }
+
+
 
 
 

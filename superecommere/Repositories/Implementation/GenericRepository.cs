@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using superecommere.Data;
-using superecommere.Models.Products;
+using superecommere.Models;
 using superecommere.Repositories.Interface;
 
 namespace superecommere.Repositories.Implementation

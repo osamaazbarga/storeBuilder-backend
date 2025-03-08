@@ -37,11 +37,11 @@ namespace superecommere.Repositories.Implementation
             var quary = context.Products.AsQueryable();
             if (!string.IsNullOrWhiteSpace(brandID.ToString()))
             {
-                quary = quary.Where(x => x.ProductBrandId == brandID);
+               // quary = quary.Where(x => x.ProductBrandId == brandID);
             }
             if (!string.IsNullOrWhiteSpace(typeID.ToString()))
             {
-                quary = quary.Where(x => x.ProductTypeId == typeID);
+                //quary = quary.Where(x => x.ProductTypeId == typeID);
             }
 
             quary = sort switch

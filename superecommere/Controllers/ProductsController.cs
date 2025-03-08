@@ -86,8 +86,8 @@ namespace superecommere.Controllers
         public async Task<ActionResult<IReadOnlyList<ProductDetailsDto>>> GetProductsAsync()
         {
             var products = await context.Products
-                .Include(p => p.ProductType)
-                .Include(p => p.ProductBrand)
+                //.Include(p => p.ProductType)
+                //.Include(p => p.ProductBrand)
                 .ToListAsync();
             return Ok(mapper.Map<IReadOnlyList<TblProducts>, IReadOnlyList<ProductDetailsDto>>(products));
             //return products.Select(product => new ProductDetailsDto
@@ -110,8 +110,8 @@ namespace superecommere.Controllers
         {
 
             var product = await context.Products
-                .Include(p => p.ProductType)
-                .Include(p => p.ProductBrand)
+                //.Include(p => p.ProductType)
+                //.Include(p => p.ProductBrand)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (product == null)

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using superecommere.Helpers;
-using superecommere.Models.Products;
+using superecommere.Models;
 using superecommere.Repositories.Interface;
 
 namespace superecommere.Controllers

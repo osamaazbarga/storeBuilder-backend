@@ -4,7 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using superecommere.Data;
 using superecommere.Models.Domain;
 using superecommere.Models.DTO.Store;
+using superecommere.Models.Products;
 using superecommere.Models.Store;
+using superecommere.Repositories.Interface;
 using superecommere.Services;
 using System.Reflection.Metadata;
 
@@ -12,39 +14,40 @@ namespace superecommere.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class StoreController : ControllerBase
+    public class StoreController(IGenericRepository<TblStore> repo, ApplicationDbContext context) : ControllerBase
     {
-        private readonly ApplicationDbContext _Context;
-        private readonly JWTService _jwtService;
-        private readonly SignInManager<TblUser> _signInManager;
-        private readonly UserManager<TblUser> _userManager;
-        private readonly EmailService _emailService;
-        private readonly IConfiguration _config;
+        //private readonly ApplicationDbContext _Context;
+        //private readonly JWTService _jwtService;
+        //private readonly SignInManager<TblUser> _signInManager;
+        //private readonly UserManager<TblUser> _userManager;
+        //private readonly EmailService _emailService;
+        //private readonly IConfiguration _config;
 
 
 
 
 
-        public StoreController(JWTService jwtService,
-            SignInManager<TblUser> signInManager,
-            UserManager<TblUser> userManager,
-            ApplicationDbContext Context,
-            EmailService emailService,
-            IConfiguration config)
-        {
+        //public StoreController(JWTService jwtService,
+        //    SignInManager<TblUser> signInManager,
+        //    UserManager<TblUser> userManager,
+        //    ApplicationDbContext Context,
+        //    EmailService emailService,
+        //    IConfiguration config)
+        //{
 
-            _Context = Context;
-            _jwtService = jwtService;
-            _signInManager = signInManager;
-            _userManager = userManager;
-            _emailService = emailService;
-            _config = config;
-        }
+        //    _Context = Context;
+        //    _jwtService = jwtService;
+        //    _signInManager = signInManager;
+        //    _userManager = userManager;
+        //    _emailService = emailService;
+        //    _config = config;
+        //}
         [HttpGet("get-stores")]
-        public async Task<ActionResult<IEnumerable<StoreDetailsDto>>> GetStores()
+
+        public async Task<ActionResult<TblProducts>> GetStores()
         {
             List<StoreDetailsDto> stores = new List<StoreDetailsDto>();
-            var storesData = await _Context.Stores.ToListAsync();
+            var storesData = await context.Stores.ToListAsync();
             foreach (var store in storesData)
             {
                 var storeToAdd = new StoreDetailsDto
@@ -68,8 +71,14 @@ namespace superecommere.Controllers
         public async Task<ActionResult<StoreAddEditDto>> GetStore(int id)
         {
 
-            var storeData = await _Context.Stores
-               .Where(x => x.Id == id).FirstOrDefaultAsync();
+            //var storeData = await context.Stores
+            //   .Where(x => x.Id == id).FirstOrDefaultAsync();
+
+            var storeData = await repo.GetByIdAsync(id);
+            if (storeData == null)
+            {
+                return NotFound(/*new ApiErrorResponse(404)*/);
+            }
 
             var store = new StoreAddEditDto
             {
@@ -92,9 +101,13 @@ namespace superecommere.Controllers
         public async Task<ActionResult<StoreAddEditDto>> GetStoreByLink(string link)
         {
 
-            var storeData = await _Context.Stores
+            var storeData = await context.Stores
                .Where(x => x.Link == link).FirstOrDefaultAsync();
-            var store = new StoreAddEditDto
+            if (storeData == null)
+            {
+                return Ok();
+            }
+                var store = new StoreAddEditDto
             {
                 Id = storeData.Id,
                 Name = storeData.Name,
@@ -111,16 +124,33 @@ namespace superecommere.Controllers
             return Ok(store);
         }
 
+        [HttpGet("check-availble-link/{link}")]
+        public async Task<ActionResult<bool>> GetLinkAvailble(string link)
+        {
+
+            var storeData = await context.Stores
+               .Where(x => x.Link == link).FirstOrDefaultAsync();
+            if(storeData == null)
+            {
+                return true;
+            }
+
+
+
+
+            return false;
+        }
+
         [HttpPost("add-edit-store")]
         public async Task<IActionResult> AddEditStore(StoreAddEditDto model)
         {
-            var getStore=await _Context.Stores.AnyAsync(u => u.Link == model.Link.ToLower());
+            var getStore=await context.Stores.AnyAsync(u => u.Link == model.Link.ToLower());
             TblStore store;
             if (getStore)
             {
                 return BadRequest($"An existing Store is using {model.Link},Link address. please try with another Link");
             }
-            var user = await _Context.Users.FirstOrDefaultAsync(x => x.Id == model.UserId);
+            var user = await context.Users.FirstOrDefaultAsync(x => x.Id == model.UserId);
             //var user = await _userManager.Users
             //    .Where(x => x.UserName != SD.AdminUserName && x.Id == id).FirstOrDefaultAsync();
             //add a new Store
@@ -135,9 +165,14 @@ namespace superecommere.Controllers
                     UserId= user.Id,
                     User = user,
                 };
-                _Context.Stores.Add(store);
-                await _Context.SaveChangesAsync();
-            return Ok(store);
+                //context.Stores.Add(store);
+                repo.Add(store);
+            if (await repo.SacveAllAsync())
+            {
+                return Ok(store);
+            }
+            return BadRequest("problem Creating Product"); ;
+            //return Ok(store);
 
             return CreatedAtAction(nameof(GetStore), new { id = store.Id }, store);
 
