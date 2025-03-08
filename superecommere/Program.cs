@@ -1,3 +1,4 @@
+using Amazon.S3;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -16,6 +17,10 @@ using superecommere.Repositories.Interface;
 using superecommere.Services;
 using System.Security.Claims;
 using System.Text;
+using Amazon.S3;
+using Amazon.Extensions.NETCore.Setup;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,19 +31,21 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 builder.Services.AddApplicationServices(builder.Configuration);
+builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
+builder.Services.AddAWSService<IAmazonS3>();
 var app = builder.Build();
 
 
 
-// Configure the HTTP request pipeline.
-app.UseMiddleware<ExceptionMeiddleware>();
 
-app.UseStatusCodePagesWithReExecute("/errors/{0}");
+
+//app.UseStatusCodePagesWithReExecute("/errors/{0}");
 //if (app.Environment.IsDevelopment())
 //{
     app.UseSwagger();
     app.UseSwaggerUI();
 //}
+
 
 app.UseHttpsRedirection();
 
@@ -56,6 +63,9 @@ app.UseStaticFiles();
 app.MapControllers();
 
 app.MapFallbackToController("Index", "Fallback");
+
+// Configure the HTTP request pipeline.
+app.UseMiddleware<ExceptionMeiddleware>();
 
 app.MapControllers();
 
@@ -78,11 +88,12 @@ catch(Exception ex)
 #endregion
 
 
-using var scope2 = app.Services.CreateScope();
-var context = scope2.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
 try
 {
+
+    using var scope2 = app.Services.CreateScope();
+    var context = scope2.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
     await context.Database.MigrateAsync();
     await SuperContextSeed.SeedAsync(context);

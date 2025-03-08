@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using superecommere.Data;
 using superecommere.Errors;
+using superecommere.Models.DTO.Product;
+using superecommere.Models.Products;
 
 namespace superecommere.Controllers
 {
-    //[ApiController]
-    //[Route("api/[controller]")]
+  
     public class BuggyController:BaseApiController
     {
         
@@ -15,15 +16,32 @@ namespace superecommere.Controllers
         {
             _context = context;
         }
+        [HttpGet("unauhorized")]
+        public IActionResult GetUnauhorized()
+        {
+            return Unauthorized();
+        }
 
         [HttpGet("notfound")]
-        public ActionResult GetNotFound()
+        public IActionResult GetNotFound()
         {
             var thing = _context.Products.Find(42);
             if(thing == null)
             {
-                return NotFound(new ApiResponse(404));
+                return NotFound();
             }
+            return Ok();
+        }
+
+        [HttpGet("internalerror")]
+        public IActionResult GetInternalError()
+        {
+            throw new Exception("This is a test exeception");
+        }
+
+        [HttpPost("validationerror")]
+        public IActionResult GetValidationError(ProductDetailsDto products)
+        {
             return Ok();
         }
 
@@ -36,9 +54,9 @@ namespace superecommere.Controllers
         }
 
         [HttpGet("badrequest")]
-        public ActionResult GetBadRequest()
+        public IActionResult GetBadRequest()
         {
-            return BadRequest(new ApiResponse(400));
+            return BadRequest();
         }
 
         [HttpGet("badrequest/{id}")]

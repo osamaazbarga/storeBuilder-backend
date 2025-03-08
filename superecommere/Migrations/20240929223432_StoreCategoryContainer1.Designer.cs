@@ -12,15 +12,15 @@ using superecommere.Data;
 namespace superecommere.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240704213502_initmigration")]
-    partial class initmigration
+    [Migration("20240929223432_StoreCategoryContainer1")]
+    partial class StoreCategoryContainer1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.20")
+                .HasAnnotation("ProductVersion", "8.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -160,6 +160,78 @@ namespace superecommere.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("superecommere.Models.Categories.StoreCategories", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ArName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("StoreCategories");
+                });
+
+            modelBuilder.Entity("superecommere.Models.Categories.StoreCategoryContainer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("StoreId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SubCategoryId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StoreId");
+
+                    b.HasIndex("SubCategoryId");
+
+                    b.ToTable("StoreCategoryContainer");
+                });
+
+            modelBuilder.Entity("superecommere.Models.Categories.SubStoreCategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ArName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("SubStoreCategories");
                 });
 
             modelBuilder.Entity("superecommere.Models.Domain.TblUser", b =>
@@ -306,9 +378,18 @@ namespace superecommere.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ModefiedDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("PictureUrl")
                         .IsRequired()
@@ -323,16 +404,24 @@ namespace superecommere.Migrations
                     b.Property<int>("ProductTypeId")
                         .HasColumnType("int");
 
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(160)
                         .HasColumnType("nvarchar(160)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ProductBrandId");
 
                     b.HasIndex("ProductTypeId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Products");
                 });
@@ -362,6 +451,9 @@ namespace superecommere.Migrations
 
                     b.Property<string>("Logo")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ModefiedDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
@@ -427,6 +519,36 @@ namespace superecommere.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("superecommere.Models.Categories.StoreCategoryContainer", b =>
+                {
+                    b.HasOne("superecommere.Models.Store.TblStore", "Store")
+                        .WithMany()
+                        .HasForeignKey("StoreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("superecommere.Models.Categories.SubStoreCategory", "SubCategory")
+                        .WithMany()
+                        .HasForeignKey("SubCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Store");
+
+                    b.Navigation("SubCategory");
+                });
+
+            modelBuilder.Entity("superecommere.Models.Categories.SubStoreCategory", b =>
+                {
+                    b.HasOne("superecommere.Models.Categories.StoreCategories", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+                });
+
             modelBuilder.Entity("superecommere.Models.Products.TblProducts", b =>
                 {
                     b.HasOne("superecommere.Models.Products.ProductBrand", "ProductBrand")
@@ -441,9 +563,15 @@ namespace superecommere.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("superecommere.Models.Domain.TblUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
                     b.Navigation("ProductBrand");
 
                     b.Navigation("ProductType");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("superecommere.Models.Store.TblStore", b =>

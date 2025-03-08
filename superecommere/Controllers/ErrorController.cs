@@ -11,7 +11,7 @@ namespace superecommere.Controllers
         public IActionResult Error(int code)
         {
 
-            return new ObjectResult(new ApiResponse(code));
+            return new ObjectResult(new ApiErrorResponse(code,null,null));
         }
     }
 }
