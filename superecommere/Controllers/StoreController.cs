@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Mailjet.Client.Resources;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using superecommere.Data;
+using superecommere.Helpers;
 using superecommere.Models.Domain;
 using superecommere.Models.DTO.Store;
 using superecommere.Models.Products;
@@ -146,6 +148,8 @@ namespace superecommere.Controllers
         {
             var getStore=await context.Stores.AnyAsync(u => u.Link == model.Link.ToLower());
             TblStore store;
+            if (context.Stores.Any(s => s.Subdomain == model.Subdomain))
+                return BadRequest("Subdomain already exists");
             if (getStore)
             {
                 return BadRequest($"An existing Store is using {model.Link},Link address. please try with another Link");
@@ -163,11 +167,12 @@ namespace superecommere.Controllers
                     Logo = model.Logo,
                     Description = model.Description,
                     UserId= user.Id,
+                    Subdomain=model.Subdomain,
                     User = user,
                 };
                 //context.Stores.Add(store);
                 repo.Add(store);
-            if (await repo.SacveAllAsync())
+            if (await repo.SaveAllAsync())
             {
                 return Ok(store);
             }
@@ -221,6 +226,110 @@ namespace superecommere.Controllers
 
         }
 
+
+        [HttpPost("custom-domain")]
+        public async Task<IActionResult> ConnectCustomDomain([FromBody] CustomDomainDto dto)
+        {
+            var store = context.Stores.FirstOrDefault(s => s.OwnerUserId == 1); // simulate auth
+            if (store == null) return NotFound();
+
+            store.CustomDomain = dto.CustomDomain;
+            store.DomainVerificationStatus = "Pending";
+
+            await context.SaveChangesAsync();
+
+            return Ok(new { success = true, status = store.DomainVerificationStatus });
+        }
+
+
+        [HttpGet("by-subdomain/{subdomain}")]
+        public IActionResult GetStoreBySubdomain(string subdomain)
+        {
+            var store = context.Stores.FirstOrDefault(s => s.Subdomain == subdomain);
+
+            if (store == null)
+                return NotFound();
+
+            return Ok(store);
+        }
+
+        [HttpPut("{id}/custom-domain")]
+        public async Task<IActionResult> UpdateCustomDomain(int id, [FromBody] CustomDomainDto dto)
+        {
+            var store = await context.Stores.FindAsync(id);
+            if (store == null) return NotFound();
+
+            store.CustomDomain = dto.CustomDomain;
+            store.DomainVerificationStatus = "Unverified";
+            store.DomainVerificationCode = Guid.NewGuid(); // trigger re-verification
+
+            await context.SaveChangesAsync();
+            return Ok(store);
+        }
+
+        // POST: api/stores/{id}/verify-domain
+        [HttpPost("{id}/verify-domain")]
+        public async Task<IActionResult> VerifyDomain(int id)
+        {
+            var store = await context.Stores.FindAsync(id);
+            if (store == null) return NotFound();
+
+            // In real setup you'd verify DNS here
+            store.DomainVerificationStatus = "Verified";
+
+            await context.SaveChangesAsync();
+            return Ok(new { status = "Verified" });
+        }
+
+        // PUT: api/stores/{id}/deactivate
+        [HttpPut("{id}/deactivate")]
+        public async Task<IActionResult> DeactivateStore(int id)
+        {
+            var store = await context.Stores.FindAsync(id);
+            if (store == null) return NotFound();
+
+            store.IsActive = false;
+            await context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        [HttpPost("verify-domain")]
+        public async Task<IActionResult> VerifyDomain([FromBody] DomainVerifyRequest request)
+        {
+            var store = await context.Stores.FirstOrDefaultAsync(s => s.CustomDomain == request.Domain);
+
+            if (store == null) return NotFound();
+
+            // Check TXT DNS record (or make a fetch request to a file/token endpoint)
+            var dnsChecker = new DnsChecker();
+            if (await dnsChecker.HasVerificationRecordAsync(request.Domain, store.DomainVerificationCode.ToString()))
+            {
+                store.DomainVerificationStatus = "Verified";
+                await context.SaveChangesAsync();
+                return Ok("Verified");
+            }
+
+            return BadRequest("Verification TXT record not found.");
+        }
+
+
+        [HttpPost("connect-custom-domain")]
+        public async Task<IActionResult> ConnectCustomDomain([FromBody] DomainConnectRequest request)
+        {
+            var store = await context.Stores.FirstOrDefaultAsync(s => s.Id == request.StoreId);
+            if (store == null) return NotFound();
+
+            store.CustomDomain = request.Domain.ToLower();
+            store.DomainVerificationCode = Guid.NewGuid(); // New verification code
+            store.DomainVerificationStatus = "Unverified";
+
+            await context.SaveChangesAsync();
+            return Ok(new { VerificationCode = store.DomainVerificationCode });
+        }
+
+
+
+
         //[HttpPut("lock-member/{id}")]
         //public async Task<IActionResult> LockMember(string id)
         //{
@@ -273,6 +382,16 @@ namespace superecommere.Controllers
         //{
         //    return _userManager.FindByIdAsync(userId).GetAwaiter().GetResult().UserName.Equals(SD.AdminUserName);
         //}
+
+        public class CreateStoreDto
+        {
+            public string Subdomain { get; set; } = "";
+        }
+
+        public class CustomDomainDto
+        {
+            public string CustomDomain { get; set; } = "";
+        }
 
     }
 }

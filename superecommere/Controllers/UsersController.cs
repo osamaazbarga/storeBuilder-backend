@@ -169,10 +169,10 @@ namespace superecommere.Controllers
             {
                 Email = model.Email.ToLower(),
                 UserName = model.Email.ToLower(),
-                FirstName = model.FirstName.ToLower(),
-                LastName = model.LastName.ToLower(),
+                FullName = model.FullName.ToLower(),
+                //LastName = model.LastName.ToLower(),
                 PhoneNumber=model.Phone.ToLower(),
-                Merchant= model.Merchant.ToLower(),
+               // Merchant= model.Merchant.ToLower(),
 
 
             };

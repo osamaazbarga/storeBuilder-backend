@@ -60,7 +60,7 @@ namespace superecommere.Repositories.Implementation
             context.Set<T>().Remove(entity);
         }
 
-        public async Task<bool> SacveAllAsync()
+        public async Task<bool> SaveAllAsync()
         {
             return await context.SaveChangesAsync()>0;
         }

@@ -19,10 +19,13 @@ using System.Security.Claims;
 using System.Text;
 using Amazon.S3;
 using Amazon.Extensions.NETCore.Setup;
+using Microsoft.AspNetCore.HostFiltering;
+using System.Net;
 
 
 
 var builder = WebApplication.CreateBuilder(args);
+
 
 //builder.Services.Configure<JwtConfig>(builder.Configuration.GetSection(key:"JwtConfig"));
 
@@ -30,19 +33,45 @@ var builder = WebApplication.CreateBuilder(args);
 //Add services to the container.
 builder.Services.AddControllers();
 
+
 builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
 builder.Services.AddAWSService<IAmazonS3>();
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    //options.ListenAnyIP(5000, listenOptions =>
+    //{
+    //    listenOptions.UseHttps(); // or UseHttp() if you’re testing with http
+    //});
+    var certPath = Path.Combine(Directory.GetCurrentDirectory(), "localtest.me.pfx");
+    options.Listen(IPAddress.Any, 5000, listenOptions =>
+    {
+
+        listenOptions.UseHttps(certPath, "123456");
+    });
+});
+
+//builder.Services.Configure<HostFilteringOptions>(options =>
+//{
+//    options.AllowedHosts = new[] {  "localhost", "localtest.me", ".localtest.me:4200" };
+//});
+
+
+
 var app = builder.Build();
+// Configure the HTTP request pipeline.
+app.UseMiddleware<ExceptionMeiddleware>();
+app.UseMiddleware<StoreMiddleware>();
 
 
-
+app.UseHostFiltering();
 
 
 //app.UseStatusCodePagesWithReExecute("/errors/{0}");
 //if (app.Environment.IsDevelopment())
 //{
-    app.UseSwagger();
+app.UseSwagger();
     app.UseSwaggerUI();
 //}
 
@@ -50,6 +79,7 @@ var app = builder.Build();
 app.UseHttpsRedirection();
 
 app.UseCors("SuperEcommereOrigins");
+app.UseCors("DynamicSubdomainCors");
 
 app.UseAuthentication();
 
@@ -64,8 +94,6 @@ app.MapControllers();
 
 app.MapFallbackToController("Index", "Fallback");
 
-// Configure the HTTP request pipeline.
-app.UseMiddleware<ExceptionMeiddleware>();
 
 app.MapControllers();
 

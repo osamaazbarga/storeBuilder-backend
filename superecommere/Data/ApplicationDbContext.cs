@@ -8,6 +8,7 @@ using superecommere.Models.Categories;
 using superecommere.Models.Domain;
 using superecommere.Models.Products;
 using superecommere.Models.Store;
+using superecommere.Models.UploadFile;
 using System.Reflection;
 using System.Reflection.Metadata;
 
@@ -28,6 +29,11 @@ namespace superecommere.Data
         public DbSet<StoreCategories> StoreCategories { get; set; }
         public DbSet<SubStoreCategory> SubStoreCategories { get; set; }
         public DbSet<StoreCategoryContainer> StoreCategoryContainer { get; set; }
+        public DbSet<UploadImgProducts> UploadImgProducts { get; set; }
+        public DbSet<ProductTranslation> ProductTranslation { get; set; }
+        public DbSet<CreateStoreRequest> CreateStoreRequest { get; set; }
+        public DbSet<CustomDomainRequest> CustomDomainRequest { get; set; }
+
 
 
 
@@ -57,7 +63,15 @@ namespace superecommere.Data
             base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ProductConfiguration).Assembly);
+            modelBuilder.Entity<TblStore>()
+                .HasIndex(s => s.Subdomain)
+                .IsUnique();
 
+            // Create the unique index on CustomDomain
+            modelBuilder.Entity<TblStore>()
+                .HasIndex(s => s.CustomDomain)
+                .IsUnique()
+                .HasFilter("[CustomDomain] IS NOT NULL");
 
             //modelBuilder.Entity<TblUser>()
             //   .HasMany(e => e.Stores)

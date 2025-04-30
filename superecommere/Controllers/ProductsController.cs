@@ -9,12 +9,13 @@ using superecommere.Models.DTO.Product;
 using superecommere.Models.Products;
 using superecommere.Repositories.Interface;
 using superecommere.Repositories.Specification;
+using superecommere.Services;
 
 
 namespace superecommere.Controllers
 {
 
-    public class ProductsController(ApplicationDbContext context,IMapper mapper,IGenericRepository<TblProducts> repo,IGenericRepository<ProductBrand> repoBrand, IGenericRepository<ProductType> repoType, IProductRepository repoPro) : BaseApiController
+    public class ProductsController(ApplicationDbContext context, TranslationService translationService, IMapper mapper,IGenericRepository<TblProducts> repo, IGenericRepository<ProductTranslation> repoTrans, IGenericRepository<ProductBrand> repoBrand, IGenericRepository<ProductType> repoType, IProductRepository repoPro) : BaseApiController
     {
 
 
@@ -43,7 +44,7 @@ namespace superecommere.Controllers
         public async Task<ActionResult<TblProducts>> CreateProduct(TblProducts product)
         {
             repo.Add(product);
-            if (await repo.SacveAllAsync()) { 
+            if (await repo.SaveAllAsync()) { 
                 return CreatedAtAction("GetProduct", new {id=product.Id},product);
             }
             return BadRequest("problem Creating Product"); 
@@ -54,8 +55,16 @@ namespace superecommere.Controllers
         {
             if (product.Id != id || !ProductExists(id)) return BadRequest("Cannot update this product");
             repo.Update(product);
-            if (await repo.SacveAllAsync())
+            if (await repo.SaveAllAsync())
             {
+                var translations = await context.ProductTranslation
+                .Where(t => t.ProductId == id).ToListAsync();
+                foreach (var item in translations)
+                {
+                    item.IsTranslateChanged = true;
+                    repoTrans.Update(item);
+
+                };
                 return NoContent();
             }
 
@@ -68,7 +77,7 @@ namespace superecommere.Controllers
             var product = await repo.GetByIdAsync(id);
             if (product == null) return NotFound();
             repo.Remove(product);
-            if (await repo.SacveAllAsync())
+            if (await repo.SaveAllAsync())
             {
                 return NoContent();
             }
@@ -135,5 +144,78 @@ namespace superecommere.Controllers
             return Ok(await repoType.ListAsync(spec));
             return Ok(await repoPro.GetTypesAsync());
         }
+
+
+        //public async Task AddProductWithTranslationsAsync(TblProducts product, string language)
+        //{
+
+
+
+        //    // ترجمة النصوص إلى اللغات المختلفة
+        //    //string englishText = product.Title;  // مثال على اسم المنتج
+        //    //string arabicTranslation = await translationService.TranslateTextAsync(englishText, language);
+        //    //string hebrewTranslation = await translationService.TranslateTextAsync(englishText, "he");
+
+        //    // تخزين الترجمات في قاعدة البيانات
+        //    var translations = new ProductTranslation
+        //    {
+        //        Title = product.Title,
+        //        Description = product.Description,
+        //        TranslatedTitle = await translationService.TranslateTextAsync(product.Title, language),
+        //        TranslatedDescription = await translationService.TranslateTextAsync(product.Description, language),
+        //        ProductId = product.Id,
+        //        Language = language,
+
+        //    };
+
+        //    // إضافة الترجمات لقاعدة البيانات
+        //    context.ProductTranslation.AddRange(translations);
+        //    await context.SaveChangesAsync();
+        //}
+
+        //public async Task UpdateProductWithTranslationsAsync(TblProducts product, ProductTranslation productTranslation, string language)
+        //{
+
+        //    if (productTranslation.Title != product.Title)
+        //    {
+        //        productTranslation.TranslatedTitle = await translationService.TranslateTextAsync(product.Title, language);
+        //        productTranslation.Title = product.Title;
+        //    }
+        //    if (productTranslation.Description != product.Description)
+        //    {
+        //        productTranslation.TranslatedDescription = await translationService.TranslateTextAsync(product.Description, language);
+        //        productTranslation.Description = product.Description;
+        //    }
+        //    productTranslation.IsTranslateChanged = false;
+        //    productTranslation.ModefiedDate = DateTime.Now;
+
+        //    // إضافة الترجمات لقاعدة البيانات
+        //    repoTrans.Update(productTranslation);
+        //    await repoTrans.SaveAllAsync();
+        //}
+
+        //public async Task<string> GetProductTranslationAsync(int productId, string language)
+        //{
+        //    var product = await repo.GetByIdAsync(productId);
+        //    if (product == null)
+        //    {
+        //        return "Product not found";
+        //    }
+        //    var translation = await context.ProductTranslation
+        //        .FirstOrDefaultAsync(t => t.ProductId == productId && t.Language == language);
+        //    if (translation==null)
+        //    {
+        //        await AddProductWithTranslationsAsync(product, language);
+        //    }
+        //    if (translation.IsTranslateChanged)
+        //    {
+        //        if (product.Id != productId || !ProductExists(productId)) return "Cannot update this product";
+        //       // await UpdateProductWithTranslationsAsync(product, translation, language);
+        //    }
+
+        //    return translation?.Title ?? "Translation not found";
+        //}
+
+
     }
 }

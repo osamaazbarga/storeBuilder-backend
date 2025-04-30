@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using superecommere.Data;
 
@@ -11,9 +12,11 @@ using superecommere.Data;
 namespace superecommere.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250310215431_addUpladimgproducts")]
+    partial class addUpladimgproducts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -262,9 +265,6 @@ namespace superecommere.Migrations
                     b.Property<string>("FirstName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("FullName")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("IsDeleted")
                         .HasColumnType("int");
 
@@ -354,46 +354,6 @@ namespace superecommere.Migrations
                     b.ToTable("ProductBrands");
                 });
 
-            modelBuilder.Entity("superecommere.Models.Products.ProductTranslation", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreateDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsTranslateChanged")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Language")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("ModefiedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Title")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TranslatedDescription")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TranslatedTitle")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ProductTranslation");
-                });
-
             modelBuilder.Entity("superecommere.Models.Products.ProductType", b =>
                 {
                     b.Property<int>("Id")
@@ -463,41 +423,6 @@ namespace superecommere.Migrations
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("superecommere.Models.Store.CreateStoreRequest", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Subdomain")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("CreateStoreRequest");
-                });
-
-            modelBuilder.Entity("superecommere.Models.Store.CustomDomainRequest", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("CustomDomain")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("CustomDomainRequest");
-                });
-
             modelBuilder.Entity("superecommere.Models.Store.TblStore", b =>
                 {
                     b.Property<int>("Id")
@@ -512,20 +437,8 @@ namespace superecommere.Migrations
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("CustomDomain")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("DomainVerificationCode")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("DomainVerificationStatus")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
 
                     b.Property<string>("Kind")
                         .HasColumnType("nvarchar(max)");
@@ -542,24 +455,10 @@ namespace superecommere.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("OwnerUserId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Subdomain")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CustomDomain")
-                        .IsUnique()
-                        .HasFilter("[CustomDomain] IS NOT NULL");
-
-                    b.HasIndex("Subdomain")
-                        .IsUnique()
-                        .HasFilter("[Subdomain] IS NOT NULL");
 
                     b.HasIndex("UserId");
 

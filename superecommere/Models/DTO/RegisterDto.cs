@@ -11,15 +11,15 @@ namespace superecommere.Models.DTO
         [Required]
         [StringLength(15, MinimumLength = 6, ErrorMessage = "Password name must be at least {2}, and maximum {1} charactors")]
         public required string Password { get; set; }
-        [Required]
-        [StringLength(15, MinimumLength = 3, ErrorMessage = "Merchant must be at least {2}, and maximum {1} charactors")]
-        public required string Merchant { get; set; }
+        //[Required]
+        //[StringLength(15, MinimumLength = 3, ErrorMessage = "Merchant must be at least {2}, and maximum {1} charactors")]
+        //public required string Merchant { get; set; }
         [Required]
         [StringLength(15, MinimumLength = 3, ErrorMessage = "First name must be at least {2}, and maximum {1} charactors")]
-        public required string FirstName { get; set; }
-        [Required]
-        [StringLength(15, MinimumLength = 3, ErrorMessage = "Last name must be at least {2}, and maximum {1} charactors")]
-        public required string LastName { get; set; }
+        public required string FullName { get; set; }
+        //[Required]
+        //[StringLength(15, MinimumLength = 3, ErrorMessage = "Last name must be at least {2}, and maximum {1} charactors")]
+        //public required string LastName { get; set; }
         [Required]
         [StringLength(15, MinimumLength = 10, ErrorMessage = "Phone number must be at least {2}, and maximum {1} charactors")]
         public required string Phone { get; set; }

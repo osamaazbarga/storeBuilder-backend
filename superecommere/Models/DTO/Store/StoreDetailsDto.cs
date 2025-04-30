@@ -12,6 +12,9 @@ namespace superecommere.Models.DTO.Store
         public string Logo { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public required TblUser User { get; set; }
+        public string Subdomain { get; set; }
+        public string CustomDomain { get; set; }
+        public string DomainVerificationStatus { get; set; }
         public DateTime CreateDate { get; set; } = DateTime.UtcNow;
     }
 }

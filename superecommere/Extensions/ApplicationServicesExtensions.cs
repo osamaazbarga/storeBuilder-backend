@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HostFiltering;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -105,11 +106,59 @@ namespace superecommere.Extensions
 
             });
 
-            services.AddCors(options => options.AddPolicy(name: "SuperEcommereOrigins",
-                policy =>
+            //services.AddCors(options => options.AddPolicy(name: "SuperEcommereOrigins",
+            //    policy =>
+            //    {
+            //        policy.WithOrigins("http://localhost:4200","https://localhost:4200").AllowAnyMethod().AllowAnyHeader();
+            //    }));
+
+            services.AddCors(options =>
+            {
+               options.AddPolicy("DynamicSubdomainCors", policy =>
                 {
-                    policy.WithOrigins("http://localhost:4200","https://localhost:4200").AllowAnyMethod().AllowAnyHeader();
-                }));
+                    //policy.WithOrigins(
+                    //    "http://localhost:4200",
+                    //    "http://127.0.0.1:4200",
+                    //    "http://localtest.me:4200"
+                    //)
+                    //.AllowAnyHeader()
+                    //.AllowAnyMethod();
+                    //.AllowCredentials(); // only if you're using cookies/auth
+                    //policy.WithOrigins(
+                    //    "http://localhost:4200",
+                    //    "http://*.localtest.me:4200", // optional: wildcards don't work directly, see below
+                    //     "http://localhost:4200",
+                    //    "http://localtest.me:4200",
+                    //    "http://127.0.0.1:4200"
+                    //);
+                    //.AllowAnyHeader()
+                    //.AllowAnyMethod()
+                    //.AllowCredentials();
+
+                    //policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+                    //       policy.WithOrigins("http://localhost:4200", "http://localtest.me:4200")
+                    //.AllowAnyHeader()
+                    //.AllowAnyMethod()
+                    //.AllowCredentials(); // only if you're using cookies/auth
+
+
+                    policy
+                    .SetIsOriginAllowed(origin =>
+                    {
+                        // Allow subdomains of localtest.me:4200
+                        if (origin == null) return false;
+
+                        var uri = new Uri(origin);
+                        return uri.Host.EndsWith("localtest.me") && uri.Port == 4200;
+                    })
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials(); // if you're using cookies/auth
+                });
+            });
+
+
+           
 
             //services.Configure<ApiBehaviorOptions>(options =>
             //{
@@ -150,6 +199,7 @@ namespace superecommere.Extensions
             });
 
             services.AddScoped<ITblUserRepository, TblUserRepository>();
+            services.AddScoped<IStoreService, StoreService>();
 
             return services;
         }
