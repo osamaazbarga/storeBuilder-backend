@@ -135,25 +135,25 @@ namespace superecommere.Extensions
                     //.AllowAnyMethod()
                     //.AllowCredentials();
 
-                    //policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+                    policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
                     //       policy.WithOrigins("http://localhost:4200", "http://localtest.me:4200")
                     //.AllowAnyHeader()
                     //.AllowAnyMethod()
                     //.AllowCredentials(); // only if you're using cookies/auth
 
 
-                    policy
-                    .SetIsOriginAllowed(origin =>
-                    {
-                        // Allow subdomains of localtest.me:4200
-                        if (origin == null) return false;
+                    //policy
+                    //.SetIsOriginAllowed(origin =>
+                    //{
+                    //    // Allow subdomains of localtest.me:4200
+                    //    if (origin == null) return false;
 
-                        var uri = new Uri(origin);
-                        return uri.Host.EndsWith("localtest.me") && uri.Port == 4200;
-                    })
-                    .AllowAnyMethod()
-                    .AllowAnyHeader()
-                    .AllowCredentials(); // if you're using cookies/auth
+                    //    var uri = new Uri(origin);
+                    //    return uri.Host.EndsWith("localtest.me") && uri.Port == 4200;
+                    //})
+                    //.AllowAnyMethod()
+                    //.AllowAnyHeader()
+                    //.AllowCredentials(); // if you're using cookies/auth
                 });
             });
 

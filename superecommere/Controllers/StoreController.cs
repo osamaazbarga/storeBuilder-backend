@@ -99,6 +99,37 @@ namespace superecommere.Controllers
             return Ok(store);
         }
 
+        [HttpGet("get-store-by-user/{id}")]
+        public async Task<ActionResult<StoreAddEditDto>> GetStoreByUser(string id)
+        {
+
+            //var storeData = await context.Stores
+            //   .Where(x => x.Id == id).FirstOrDefaultAsync();
+            var storeData = await context.Stores
+              .Where(x => x.UserId == id).FirstOrDefaultAsync();
+            //var storeData = await repo.GetByIdAsync(id);
+            if (storeData == null)
+            {
+                return NotFound(/*new ApiErrorResponse(404)*/);
+            }
+
+            var store = new StoreAddEditDto
+            {
+                Id = storeData.Id,
+                Name = storeData.Name,
+                Link = storeData.Link,
+                Category = storeData.Category,
+                Logo = storeData.Logo,
+                Description = storeData.Description,
+                User = storeData.User,
+            };
+
+
+
+
+            return Ok(store);
+        }
+
         [HttpGet("get-store-link/{link}")]
         public async Task<ActionResult<StoreAddEditDto>> GetStoreByLink(string link)
         {
